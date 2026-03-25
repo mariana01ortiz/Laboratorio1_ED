@@ -16,7 +16,7 @@ def runStartMenu(screen, events, bg):
 
         center_x = WIDTH // 2
 
-        # 🔥 CONFIGURACIÓN POR MODO
+        # CONFIGURACIÓN POR MODO
         if is_fullscreen:
             title_size = 80
             button_font_size = 40

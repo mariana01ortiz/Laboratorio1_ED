@@ -7,10 +7,13 @@ from SettingsMenu import runSettingsMenu
 from LeaderboardMenu import runLeaderboardMenu
 from Game import runGame
 
+from Repositories.Settings_repository import get_settings_data
+from Repositories.Profile_repository import ProfileRepository
+
 pygame.init()
 
 async def main():
-    settings = {"fullscreen": False}
+    settings = get_settings_data() 
     selected_user = None
 
     repo = ProfileRepository()
@@ -35,7 +38,7 @@ async def main():
 
         for event in events:
             if event.type == pygame.QUIT or state == 0:
-                return  # 🔥 IMPORTANTE en pygbag
+                return  
 
         if state == 1:
             state = runStartMenu(screen, events, bg)
@@ -48,7 +51,7 @@ async def main():
                 state = result
 
         elif state == 3:
-            state = runLeaderboardMenu(screen, events, bg)
+            state = runLeaderboardMenu(screen, events, bg, repo)
 
         elif state == 5:
             state = runNewUsersMenu(screen, events, bg)
@@ -74,8 +77,6 @@ async def main():
         pygame.display.flip()
         clock.tick(60)
 
-        # 🔥 CLAVE PARA WEB
         await asyncio.sleep(0)
 
-# 🔥 entrada principal
 asyncio.run(main())
