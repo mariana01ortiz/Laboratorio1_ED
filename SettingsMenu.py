@@ -1,5 +1,6 @@
 import pygame
 from Button import Button
+from Repositories.Settings_repository import SettingsRepository 
 
 repo = SettingsRepository()
 
@@ -46,7 +47,7 @@ def runSettingsMenu(screen, events, bg, bg_original):
             40
         )
 
-        # Datos
+        # Datos desde JSON
         data = repo.get_settings("game_settings")
         if data:
             runSettingsMenu.volume = data["data"]["volume"]
@@ -66,7 +67,7 @@ def runSettingsMenu(screen, events, bg, bg_original):
             (center_x + (btn_w // 2) + (gap // 2), diff_y),
             runSettingsMenu.button_font)
 
-        # Botones ON/OFF con ajuste solo en fullscreen
+        # Fullscreen
         fs_y = diff_y + row_height
         offset_fs = 30 if is_fullscreen else 0  
         runSettingsMenu.onBtn = Button("ON", btn_w, btn_h,
@@ -122,13 +123,11 @@ def runSettingsMenu(screen, events, bg, bg_original):
     screen.blit(bg, (0, 0))
     center_x = WIDTH // 2
 
-    # Panel
     panel_surf = pygame.Surface((runSettingsMenu.panel_rect.width, runSettingsMenu.panel_rect.height))
     panel_surf.set_alpha(195)
     panel_surf.fill((10, 5, 25))
     screen.blit(panel_surf, runSettingsMenu.panel_rect)
 
-    # Título
     title_rect = runSettingsMenu.title_font.render("Opciones", True, (255, 60, 200)).get_rect(
         center=(center_x, runSettingsMenu.panel_rect.top + 50)
     )
@@ -138,58 +137,49 @@ def runSettingsMenu(screen, events, bg, bg_original):
     title = runSettingsMenu.title_font.render("Opciones", True, (255, 60, 200))
     screen.blit(title, title_rect)
 
-    # Slider
     pygame.draw.rect(screen, (60, 60, 80),
         (runSettingsMenu.slider_x, runSettingsMenu.slider_y,
          runSettingsMenu.slider_width, 8), border_radius=4)
+
     vol_w = (runSettingsMenu.volume / 100) * runSettingsMenu.slider_width
     pygame.draw.rect(screen, (0, 255, 200),
         (runSettingsMenu.slider_x, runSettingsMenu.slider_y,
          vol_w, 8), border_radius=4)
+
     pygame.draw.circle(screen, (255, 255, 255),
         (int(runSettingsMenu.slider_x + vol_w),
          runSettingsMenu.slider_y + 4), 10)
 
-    # Texto Volumen
     vol_lbl = runSettingsMenu.label_font.render(
         f"Volumen: {runSettingsMenu.volume}", True, (200, 200, 200))
     screen.blit(vol_lbl, (runSettingsMenu.slider_x, runSettingsMenu.slider_y - 30))
 
-    # Etiqueta "Dificultad"
     diff_label = runSettingsMenu.label_font.render("Dificultad", True, (200, 200, 200))
-    diff_label_rect = diff_label.get_rect(center=(
-        WIDTH // 2,
-        runSettingsMenu.easyBtn.rect.top - 20
-    ))
+    diff_label_rect = diff_label.get_rect(center=(WIDTH // 2, runSettingsMenu.easyBtn.rect.top - 20))
     screen.blit(diff_label, diff_label_rect)
 
-    # Etiqueta "Fullscreen"
     is_fullscreen = screen.get_flags() & pygame.FULLSCREEN
     fs_offset = -15 if is_fullscreen else 0
     fs_label = runSettingsMenu.label_font.render("Fullscreen", True, (200, 200, 200))
-    fs_label_rect = fs_label.get_rect(center=(
-        WIDTH // 2,
-        runSettingsMenu.onBtn.rect.top - 10 + fs_offset
-    ))
+    fs_label_rect = fs_label.get_rect(center=(WIDTH // 2, runSettingsMenu.onBtn.rect.top - 10 + fs_offset))
     screen.blit(fs_label, fs_label_rect)
 
-    # Botones
     buttons = [
         runSettingsMenu.easyBtn, runSettingsMenu.hardBtn,
         runSettingsMenu.onBtn, runSettingsMenu.offBtn,
         runSettingsMenu.saveButton, runSettingsMenu.backButton
     ]
+
     mouse_pos = pygame.mouse.get_pos()
     for btn in buttons:
         btn.update(mouse_pos)
+
     runSettingsMenu.easyBtn.draw(screen, selected=(runSettingsMenu.difficulty == "Easy"))
     runSettingsMenu.hardBtn.draw(screen, selected=(runSettingsMenu.difficulty == "Hard"))
     runSettingsMenu.onBtn.draw(screen, selected=(runSettingsMenu.fullscreen))
     runSettingsMenu.offBtn.draw(screen, selected=(not runSettingsMenu.fullscreen))
     runSettingsMenu.saveButton.draw(screen)
     runSettingsMenu.backButton.draw(screen)
-
-    pygame.display.flip()
 
     # ----------- ACCIONES -----------
     if runSettingsMenu.action == "save":
@@ -203,6 +193,7 @@ def runSettingsMenu(screen, events, bg, bg_original):
             screen = pygame.display.set_mode((0,0), pygame.FULLSCREEN)
         else:
             screen = pygame.display.set_mode((800,600))
+
         bg = pygame.transform.scale(bg_original, screen.get_size())
         runSettingsMenu.initialized = False
         runSettingsMenu.action = None
